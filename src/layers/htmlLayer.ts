@@ -17,6 +17,7 @@ export class HtmlLayer extends Layer {
   }
 
   protected override onInit(): void {
+    if (!this.element.style.position) this.element.style.position = 'absolute'
     const container = this.parent instanceof HtmlLayer ? this.parent.element : HtmlRenderer.instance.root
     container.appendChild(this.element)
     // subscribe-only (no initial write): scrubbed timelines own these styles until the prop actually changes

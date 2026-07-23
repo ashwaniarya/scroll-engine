@@ -13,36 +13,6 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-#scroll-spacer {
-  width: 100%;
-}
-
-#layer-stage {
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-}
-
-.three-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  display: block;
-  z-index: 0;
-}
-
-#html-root {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-  pointer-events: none;
-}
-
-#html-root > * {
-  position: absolute;
-}
-
 .hero {
   inset: 0;
   display: flex;

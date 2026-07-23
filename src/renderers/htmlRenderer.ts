@@ -18,6 +18,12 @@ export class HtmlRenderer implements LayerRenderer {
   private constructor() {
     this.root = document.createElement('div')
     this.root.id = 'html-root'
+    Object.assign(this.root.style, {
+      position: 'absolute',
+      inset: '0',
+      zIndex: '1',
+      pointerEvents: 'none',
+    })
   }
 
   mount(container: HTMLElement): void {

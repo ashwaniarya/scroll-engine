@@ -22,6 +22,14 @@ export class ThreeRenderer implements LayerRenderer {
   private constructor() {
     this.canvas = document.createElement('canvas')
     this.canvas.className = 'three-canvas'
+    Object.assign(this.canvas.style, {
+      position: 'absolute',
+      inset: '0',
+      width: '100%',
+      height: '100%',
+      display: 'block',
+      zIndex: '0',
+    })
     this.webgl = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true })
     this.webgl.autoClear = false
     this.webgl.setClearColor(0x000000, 0)

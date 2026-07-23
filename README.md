@@ -13,6 +13,28 @@ npm run dev        # http://localhost:5173/?dev=1
 
 Press <kbd>`</kbd> (backtick) to toggle the dev panel. `?dev=1` opens it on load.
 
+## Use as a library
+
+```bash
+npm install github:ashwaniarya/scroll-engine three gsap
+```
+
+The package builds itself on install (`prepare` script). `three`, `gsap`, and `tweakpane` are peer dependencies — npm 7+ installs them automatically.
+
+```ts
+import { createStage, DevPanel, Engine, HtmlRenderer, ThreeRenderer } from 'scroll-engine'
+
+const engine = Engine.create({ ...createStage(), screens: 5 })
+engine.addRenderer(ThreeRenderer.create())
+engine.addRenderer(HtmlRenderer.create())
+engine.addLayer(new MyLayer())        // your ThreeLayer / HtmlLayer subclasses
+engine.start()
+DevPanel.create()                     // optional; ?dev=1 or backtick to show
+
+// createStage() appends the scroll spacer + fixed stage to <body>;
+// all structural styles are inline. Bring your own `body { margin: 0 }`.
+```
+
 ## Architecture
 
 ```mermaid
