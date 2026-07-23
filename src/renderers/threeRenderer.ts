@@ -23,6 +23,10 @@ export class ThreeRenderer implements LayerRenderer {
   private readonly webgl: THREE.WebGLRenderer
   private readonly layers: ThreeLayer[] = []
 
+  get webglRenderer(): THREE.WebGLRenderer {
+    return this.webgl
+  }
+
   private constructor(options: ThreeRendererOptions) {
     this.canvas = document.createElement('canvas')
     this.canvas.className = 'three-canvas'
