@@ -6,6 +6,7 @@ const expectedExports = [
   'Layer',
   'ThreeLayer',
   'HtmlLayer',
+  'ShaderLayer',
   'DevPanel',
   'bindPropToPane',
   'Prop',

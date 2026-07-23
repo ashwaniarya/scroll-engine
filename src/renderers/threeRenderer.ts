@@ -3,11 +3,15 @@ import type { LayerRenderer, Viewport } from '../core/renderer'
 import { singletonAccess } from '../core/singleton'
 import type { ThreeLayer } from '../layers/threeLayer'
 
+export interface ThreeRendererOptions {
+  toneMapping?: THREE.ToneMapping
+}
+
 export class ThreeRenderer implements LayerRenderer {
   private static readonly access = singletonAccess<ThreeRenderer>('ThreeRenderer')
 
-  static create(): ThreeRenderer {
-    return ThreeRenderer.access.claim(new ThreeRenderer())
+  static create(options: ThreeRendererOptions = {}): ThreeRenderer {
+    return ThreeRenderer.access.claim(new ThreeRenderer(options))
   }
 
   static get instance(): ThreeRenderer {
@@ -19,7 +23,7 @@ export class ThreeRenderer implements LayerRenderer {
   private readonly webgl: THREE.WebGLRenderer
   private readonly layers: ThreeLayer[] = []
 
-  private constructor() {
+  private constructor(options: ThreeRendererOptions) {
     this.canvas = document.createElement('canvas')
     this.canvas.className = 'three-canvas'
     Object.assign(this.canvas.style, {
@@ -33,6 +37,7 @@ export class ThreeRenderer implements LayerRenderer {
     this.webgl = new THREE.WebGLRenderer({ canvas: this.canvas, antialias: true, alpha: true })
     this.webgl.autoClear = false
     this.webgl.setClearColor(0x000000, 0)
+    this.webgl.toneMapping = options.toneMapping ?? THREE.NoToneMapping
   }
 
   mount(container: HTMLElement): void {

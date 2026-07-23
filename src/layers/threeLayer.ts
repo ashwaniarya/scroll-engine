@@ -6,7 +6,7 @@ import { Layer } from './layer'
 export class ThreeLayer extends Layer {
   readonly rendererKind = 'three'
   readonly scene = new THREE.Scene()
-  readonly camera = new THREE.PerspectiveCamera(50, 1, 0.1, 300)
+  readonly camera: THREE.Camera = new THREE.PerspectiveCamera(50, 1, 0.1, 300)
 
   protected override onInit(): void {
     ThreeRenderer.instance.register(this)
@@ -14,8 +14,10 @@ export class ThreeLayer extends Layer {
   }
 
   protected override onResize(viewport: Viewport): void {
-    this.camera.aspect = viewport.width / viewport.height
-    this.camera.updateProjectionMatrix()
+    if (this.camera instanceof THREE.PerspectiveCamera) {
+      this.camera.aspect = viewport.width / viewport.height
+      this.camera.updateProjectionMatrix()
+    }
   }
 
   protected override onDispose(): void {
@@ -28,7 +30,7 @@ export class ThreeLayer extends Layer {
     })
   }
 
-  private applyOpacityToMaterials(value: number): void {
+  protected applyOpacityToMaterials(value: number): void {
     this.scene.traverse((object) => {
       if (object instanceof THREE.Mesh) {
         for (const material of this.materialsOf(object)) {

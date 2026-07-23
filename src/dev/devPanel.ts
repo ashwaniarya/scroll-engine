@@ -15,12 +15,20 @@ export function bindPropToPane<T>(
 ): void {
   const target: Record<string, unknown> = { [label]: prop.value }
   const binding = folder.addBinding(target, label, options)
+  let syncingFromProp = false
   binding.on('change', (event) => {
+    // refresh() can emit change when the pane clamps (min/step) — never echo that back mid-notify
+    if (syncingFromProp) return
     prop.value = event.value as T
   })
   prop.subscribe((value) => {
-    target[label] = value
-    binding.refresh()
+    syncingFromProp = true
+    try {
+      target[label] = value
+      binding.refresh()
+    } finally {
+      syncingFromProp = false
+    }
   })
 }
 
