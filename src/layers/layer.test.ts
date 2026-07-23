@@ -32,6 +32,10 @@ class RecordingLayer extends Layer {
     this.log.push(`scroll:${this.name}`)
   }
 
+  protected override onUpdate(): void {
+    this.log.push(`update:${this.name}`)
+  }
+
   protected override onDispose(): void {
     this.log.push(`dispose:${this.name}`)
   }
@@ -115,6 +119,31 @@ describe('Layer tree', () => {
     expect(log).toEqual(['dispose:child', 'dispose:parent'])
     watched.value = 1
     expect(listener).not.toHaveBeenCalled()
+  })
+
+  it('skips update for a fully faded subtree but still delivers scroll', () => {
+    const log: string[] = []
+    const parent = new RecordingLayer('parent', log)
+    const child = new RecordingLayer('child', log)
+    parent.addChild(child)
+    parent.init(fakeContext())
+    log.length = 0
+    child.opacity.value = 0
+    parent.update(0.016)
+    parent.notifyScroll(scrollState(0.5))
+    expect(log).toEqual(['update:parent', 'scroll:parent', 'scroll:child'])
+  })
+
+  it('reports isRenderable from visible and opacity together', () => {
+    const layer = new RecordingLayer('gauge')
+    expect(layer.isRenderable).toBe(true)
+    layer.opacity.value = 0.0005
+    expect(layer.isRenderable).toBe(false)
+    layer.opacity.value = 0.5
+    layer.visible.value = false
+    expect(layer.isRenderable).toBe(false)
+    layer.visible.value = true
+    expect(layer.isRenderable).toBe(true)
   })
 
   it('remaps global progress into the layer scroll range', () => {

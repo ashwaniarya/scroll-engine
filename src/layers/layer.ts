@@ -18,6 +18,8 @@ export interface ScrubTimeline {
   kill(): void
 }
 
+const RENDERABLE_OPACITY_EPSILON = 0.001
+
 export abstract class Layer {
   readonly name: string
   readonly visible = new Prop(true)
@@ -69,8 +71,14 @@ export abstract class Layer {
     for (const child of [...this.children]) child.notifyScroll(scroll)
   }
 
+  // fully faded layers skip update/render but keep receiving notifyScroll —
+  // fades must be driven from onScroll, or a hidden layer could never return
+  get isRenderable(): boolean {
+    return this.visible.value && this.opacity.value > RENDERABLE_OPACITY_EPSILON
+  }
+
   update(deltaSeconds: number): void {
-    if (!this.visible.value) return
+    if (!this.isRenderable) return
     this.onUpdate(deltaSeconds)
     for (const child of this.children) child.update(deltaSeconds)
   }

@@ -22,6 +22,7 @@ export class ThreeRenderer implements LayerRenderer {
   readonly canvas: HTMLCanvasElement
   private readonly webgl: THREE.WebGLRenderer
   private readonly layers: ThreeLayer[] = []
+  private compiled = false
 
   get webglRenderer(): THREE.WebGLRenderer {
     return this.webgl
@@ -58,9 +59,15 @@ export class ThreeRenderer implements LayerRenderer {
   }
 
   render(): void {
+    if (!this.compiled) {
+      // one-time warm-up: registered scenes are built by now, so compiling here
+      // keeps culled layers ready — their first reveal never hits shader-compile jank
+      for (const layer of this.layers) this.webgl.compile(layer.scene, layer.camera)
+      this.compiled = true
+    }
     this.webgl.clear()
     const orderedVisible = this.layers
-      .filter((layer) => layer.visible.value)
+      .filter((layer) => layer.isRenderable)
       .sort((first, second) => first.zIndex.value - second.zIndex.value)
     for (const layer of orderedVisible) {
       this.webgl.clearDepth()
