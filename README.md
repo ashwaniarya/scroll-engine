@@ -37,20 +37,59 @@ DevPanel.create()                     // optional; ?dev=1 or backtick to show
 
 ## Architecture
 
+Two things happen in the engine, and they are easiest to read separately: **scroll data flowing left to right** (an event path — runs only when scroll changes), and the **frame loop** (runs every frame).
+
+### 1 · Scroll data flow
+
 ```mermaid
-flowchart TD
-  NS[Native scroll — tall spacer] --> ST[GSAP ScrollTrigger]
-  ST -->|onUpdate| SC[ScrollController<br/>rawProgress / smoothProgress / velocity / direction Props]
-  SC -->|smoothProgress sub| ROOT[Layer root — notifyScroll, one sync pass]
-  ROOT --> TL[ThreeLayer<br/>own scene + own camera<br/>scrubbed timeline]
-  ROOT --> HL[HtmlLayer<br/>element + bind + scrubbed timeline]
-  subgraph Renderers [pluggable LayerRenderer registry]
-    TR[ThreeRenderer<br/>one canvas, sequential renders by zIndex]
-    HR[HtmlRenderer<br/>#html-root overlay]
+flowchart LR
+  subgraph INPUT["1 · Input"]
+    direction TB
+    SPACER["Tall spacer<br/>native scroll"] --> TRIGGER["GSAP<br/>ScrollTrigger"]
   end
-  TL -.attached to.-> TR
-  HL -.attached to.-> HR
-  DEV[DevPanel — Tweakpane] <-->|two-way prop bindings| SC & TL & HL
+
+  subgraph CORE["2 · ScrollController · Props"]
+    direction TB
+    RAW["rawProgress"] --> SMOOTH["smoothProgress<br/>damped lerp"]
+    SMOOTH --> EXTRA["velocity<br/>direction"]
+  end
+
+  subgraph TREE["3 · Layer tree"]
+    direction TB
+    ROOT["root"] --> THREE_LAYER["ThreeLayer<br/>own scene + camera"]
+    ROOT --> HTML_LAYER["HtmlLayer<br/>DOM element"]
+    THREE_LAYER --> LOCAL["scrollRange maps global → local 0..1<br/>local progress scrubs paused GSAP timelines"]
+    HTML_LAYER --> LOCAL
+  end
+
+  subgraph OUTPUT["4 · Composited output"]
+    direction TB
+    THREE_RENDERER["ThreeRenderer<br/>one canvas · zIndex order<br/>depth-cleared between layers"]
+    HTML_RENDERER["HtmlRenderer<br/>#html-root overlay"]
+  end
+
+  TRIGGER -- "onUpdate" --> RAW
+  SMOOTH -- "notifyScroll<br/>one sync pass" --> ROOT
+  THREE_LAYER -. "registers with" .-> THREE_RENDERER
+  HTML_LAYER -. "mounts into" .-> HTML_RENDERER
+```
+
+Renderers are **pluggable**: `LayerRenderer` is an interface, and each layer names its backend via `rendererKind`. New render tech (Canvas2D, CSS3D, …) plugs in without touching the engine.
+
+### 2 · Frame loop (`gsap.ticker`)
+
+```mermaid
+flowchart LR
+  TICK["Engine.tick"] --> DAMP["scroll.update<br/>damp raw → smooth"] --> UPDATE["root.update<br/>skips culled subtrees"] --> RENDER["renderers.render<br/>draws only isRenderable layers<br/>visible && opacity > ε"] --> FPS["fps Prop"]
+```
+
+Fully faded layers cost nothing per frame — they are culled from both `update()` and the draw list, but keep receiving `notifyScroll` so they can fade themselves back in. All shaders are precompiled on the first frame, so a culled layer's reveal never stutters.
+
+### 3 · Observability
+
+```mermaid
+flowchart LR
+  DEV["DevPanel · Tweakpane"] <-- "two-way Prop bindings" --> PROPS["scroll graphs · fps · smoothing<br/>per-layer visible / opacity / zIndex / range"]
 ```
 
 ### Core concepts
