@@ -64,3 +64,62 @@ body {
   line-height: 1.5;
 }
 
+.hero .hero-lede {
+  max-width: 32rem;
+  font-size: 1rem;
+  color: #6b7386;
+  line-height: 1.5;
+}
+
+.outro {
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.outro h2 {
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  letter-spacing: -0.02em;
+}
+
+.outro p {
+  max-width: 30rem;
+  color: #9aa3b8;
+  line-height: 1.5;
+}
+
+.outro code {
+  display: inline-block;
+  margin-top: 0.5rem;
+  padding: 0.6rem 1rem;
+  background: #151922;
+  border: 1px solid #262c3a;
+  border-radius: 8px;
+  color: #e8eaf2;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 0.9rem;
+}
+
+.outro-links {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.outro-links a {
+  color: #2dd4bf;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.outro-links a:hover {
+  text-decoration: underline;
+}
+

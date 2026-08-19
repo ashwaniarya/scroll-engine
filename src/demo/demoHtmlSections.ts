@@ -13,6 +13,7 @@ function createHeroLayer(): HtmlLayer {
     'hero',
     `<h1>scroll-engine</h1>
      <p>layered renders · one scroll · live props</p>
+     <p class="hero-lede">A TypeScript engine for scroll-driven 3D sites. Independent layers — Three.js scenes and HTML — stay in sync through one scroll signal.</p>
      <span class="scroll-hint">scroll</span>`,
   )
   const hero = new HtmlLayer('hero', element)
@@ -40,6 +41,32 @@ function createCaptionLayer(name: string, title: string, body: string, start: nu
   return caption
 }
 
+function createOutroLayer(): HtmlLayer {
+  const element = sectionElement(
+    'outro',
+    `<h2>Build your own</h2>
+     <p>Everything you just scrolled through is a handful of layers and one scroll signal. Drop the engine into any Vite + TypeScript project.</p>
+     <code>npm install github:ashwaniarya/scroll-engine three gsap</code>
+     <div class="outro-links">
+       <a href="https://github.com/ashwaniarya/scroll-engine">GitHub repo →</a>
+       <a href="https://trinetra.syncoderslabs.com">Built with this: TRINETRA →</a>
+     </div>`,
+  )
+  const outro = new HtmlLayer('outro', element)
+  outro.scrollRange = { start: 0.85, end: 1 }
+  outro.scrub(
+    gsap
+      .timeline({ paused: true })
+      .fromTo(
+        element,
+        { autoAlpha: 0, y: 40 },
+        { autoAlpha: 1, y: 0, duration: 0.4, ease: 'power2.out' },
+      )
+      .to(element, { autoAlpha: 1, duration: 0.6 }),
+  )
+  return outro
+}
+
 export function createDemoHtmlLayers(): HtmlLayer[] {
   return [
     createHeroLayer(),
@@ -57,5 +84,6 @@ export function createDemoHtmlLayers(): HtmlLayer[] {
       0.52,
       0.95,
     ),
+    createOutroLayer(),
   ]
 }
