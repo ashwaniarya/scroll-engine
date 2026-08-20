@@ -42,6 +42,7 @@ export class Engine {
   private readonly stage: HTMLElement
   private readonly renderers = new Map<string, LayerRenderer>()
   private running = false
+  private inited = false
   private fpsFrameCount = 0
   private fpsElapsedSeconds = 0
 
@@ -78,9 +79,12 @@ export class Engine {
   start(): void {
     if (this.running) return
     this.running = true
-    this.root.init({ scroll: this.scroll, viewport: this.viewport })
-    this.root.resize(this.viewport.value)
-    this.root.notifyScroll(this.scroll.snapshot())
+    if (!this.inited) {
+      this.inited = true
+      this.root.init({ scroll: this.scroll, viewport: this.viewport })
+      this.root.resize(this.viewport.value)
+      this.root.notifyScroll(this.scroll.snapshot())
+    }
     gsap.ticker.add(this.tick)
   }
 
